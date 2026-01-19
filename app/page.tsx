@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getRateTOU } from "./utils/tou";
 import ResultTable from "./components/ResultTable";
 import DownloadCSV from "./components/DownloadCSV";
@@ -21,6 +21,7 @@ type AlertMessage = {
 }
 
 export default function Page() {
+  const [count, setCount] = useState<number | null>(null);
   const [input, setInput] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [openHoliday, setOpenHoliday] = useState(false);
@@ -30,6 +31,28 @@ export default function Page() {
     title: "",
     message: "",
   })
+
+  // useEffect(() => {
+  //   fetch("/api/visitor")
+  //     .then(res => {
+  //       if (!res.ok) {
+  //         throw new Error(`HTTP ${res.status}`);
+  //       }
+  //       return res.json(); // ✅ ต้อง return
+  //     })
+  //     .then(data => {
+  //       setCount(data.count);
+  //     })
+  //     .catch(err => {
+  //       console.error("Visitor API error:", err);
+  //       setCount(null); // หรือ 0
+  //     });
+  // }, []);
+  
+  const handleReset = () => {
+    setRows([]);
+    setInput("");
+  }
 
   const handleSubmit = () => {
     if (!input) {
@@ -52,6 +75,14 @@ export default function Page() {
     }));
 
     setRows(result);
+
+    // open modal
+    setAlert({
+      type: "success",
+      title: "Success",
+      message: "Result is ready",
+    })
+    setOpenAlert(true);
   };
 
   return (
@@ -113,6 +144,18 @@ export default function Page() {
 
             <div className="flex justify-end">
               <button
+                onClick={handleReset}
+                className="rounded-xl bg-gray-700 px-6 py-2.5
+                          text-sm font-semibold text-white
+                          hover:bg-purple-400 cursor-pointer
+                          transition mr-2"
+                title="Reset"
+                aria-label="Reset Data"
+              >
+                Reset
+              </button>
+
+              <button
                 onClick={handleSubmit}
                 className="rounded-xl bg-purple-700 px-6 py-2.5
                           text-sm font-semibold text-white
@@ -124,6 +167,11 @@ export default function Page() {
                 Process
               </button>
             </div>
+
+            {/* Visitor count */}
+            {/* <div className="flex items-center gap-1 text-xs text-purple-500">
+              👀 <span>{count}</span> visits
+            </div> */}
           </section>
 
           {/* Result */}

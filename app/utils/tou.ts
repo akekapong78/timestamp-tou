@@ -1,17 +1,55 @@
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import holidays from "@/app/data/holidays.json";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import { normalize24 } from "./helper";
 
+dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
+const DATE_FORMATS = [
+  "YYYY-MM-DD HH:mm",
+  "YYYY-MM-DD HH:mm:ss",
+  "DD/MM/YYYY HH.mm",
+  "DD/MM/YYYY HH.mm.ss",
+  "DD/MM/YYYY HH:mm",
+  "DD/MM/YYYY HH:mm:ss",
+  "DD/MM/YYYY",
+  "MM/DD/YYYY",
+  "MM/DD/YYYY HH:mm",
+  "MM/DD/YYYY HH:mm:ss",
+  "MM/DD/YYYY HH.mm",
+  "MM/DD/YYYY HH.mm.ss",
+  "YYYY-MM-DD HH:mm",
+  "YY-MM-DD HH:mm:ss",
+  "DD/MM/YY HH.mm",
+  "DD/MM/YY HH.mm.ss",
+  "DD/MM/YY HH:mm",
+  "DD/MM/YY HH:mm:ss",
+  "DD/MM/YY",
+  "MM/DD/YY",
+  "MM/DD/YY HH:mm",
+  "MM/DD/YY HH:mm:ss",
+  "MM/DD/YY HH.mm",
+  "MM/DD/YY HH.mm.ss",
+];
 
 const holidaySet = new Set<string>(
   holidays.map(h => h.date) // "YYYY-MM-DD"
 );
 
-export function getRateTOU(dateStr: string): "P" | "OP" | "H" {
-  const d = dayjs(dateStr);
+export function getRateTOU(dateStr: string): "P" | "OP" | "H" | "error" {
+  let normalized = dateStr
+    .replace(/\u00A0/g, " ") // nbsp
+    .replace(/\t/g, " ")     // 🔑 TAB จาก Excel
+    .replace(/\s+/g, " ")    // กันหลายช่อง
+    .trim();
 
-  if (!d.isValid()) return "OP"; // หรือ throw error
+  normalized = normalize24(normalized);
+  const d = dayjs(normalized, DATE_FORMATS, true);
+  if (!d.isValid()) {
+    console.log("Invalid date:", normalized); 
+    return "error"; // หรือ throw error
+  }
 
   const dateOnly = d.format("YYYY-MM-DD");
   const day = d.day(); // 0=Sun, 6=Sat
