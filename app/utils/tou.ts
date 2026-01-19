@@ -67,8 +67,7 @@ export function getRateTOU(dateStr: string, dateFormat: string): "P" | "OP" | "H
   normalized = normalize24(normalized);
   const d = dayjs(normalized, formating, true);
   if (!d.isValid()) {
-    console.log("Invalid date:", normalized); 
-    console.log("Format:", formating);
+    console.log("Invalid date:", normalized);
     return "error"; // หรือ throw error
   }
 
