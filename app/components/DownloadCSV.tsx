@@ -22,8 +22,11 @@ export default function DownloadCSV({ rows }: { rows: Row[] }) {
 
   return (
     <button
-      className="px-4 py-2 bg-green-600 text-white rounded"
       onClick={download}
+      className="rounded-xl border border-purple-600
+                 px-4 py-2 text-sm font-semibold
+                 text-purple-700
+                 hover:bg-purple-50 transition"
     >
       Download CSV
     </button>
