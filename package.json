@@ -9,8 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.6.1",
-    "@vercel/kv": "^3.0.0",
     "dayjs": "^1.11.19",
     "lucide-react": "^0.562.0",
     "next": "16.1.3",
