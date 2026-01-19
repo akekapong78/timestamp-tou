@@ -4,7 +4,9 @@ import holidays from "@/app/data/holidays.json";
 
 dayjs.extend(isBetween);
 
-const holidaySet = new Set(holidays);
+const holidaySet = new Set<string>(
+  holidays.map(h => h.date) // "YYYY-MM-DD"
+);
 
 export function getRateTOU(dateStr: string): "P" | "OP" | "H" {
   const d = dayjs(dateStr);

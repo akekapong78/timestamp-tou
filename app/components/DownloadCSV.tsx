@@ -25,7 +25,7 @@ export default function DownloadCSV({ rows }: { rows: Row[] }) {
       onClick={download}
       className="rounded-xl border border-purple-600
                  px-4 py-2 text-sm font-semibold
-                 text-purple-700
+                 text-purple-700 cursor-pointer
                  hover:bg-purple-50 transition"
     >
       Download CSV

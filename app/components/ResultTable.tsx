@@ -21,7 +21,12 @@ export default function ResultTable({ rows }: { rows: Row[] }) {
           {rows.map((r, i) => (
             <tr
               key={i}
-              className="odd:bg-white even:bg-purple-50/40"
+              className="
+              odd:bg-white
+              even:bg-purple-50/40
+              hover:bg-purple-100
+                transition-colors
+              "
             >
               <td className="px-3 py-1.5 font-mono text-gray-600">
                 {r.datetime}
