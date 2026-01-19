@@ -20,11 +20,31 @@ type AlertMessage = {
   message: string;
 }
 
+const FORMAT_OPTIONS = [
+  { label: "DD/MM/YYYY HH:mm", value: "DD/MM/YYYY HH:mm" },
+  { label: "MM/DD/YYYY HH:mm", value: "MM/DD/YYYY HH:mm" },
+  { label: "YYYY-MM-DD HH:mm", value: "YYYY-MM-DD HH:mm" },
+];
+
+function detectDefaultFormat() {
+  if (typeof navigator === "undefined") return "DD/MM/YYYY HH:mm";
+
+  const locale = navigator.language;
+  console.log(locale);
+
+  if (locale.startsWith("en-US")) return "MM/DD/YYYY HH:mm";
+  if (locale.startsWith("ja")) return "YYYY-MM-DD HH:mm";
+
+  return "DD/MM/YYYY HH:mm";
+}
+
 export default function Page() {
   const [input, setInput] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [openHoliday, setOpenHoliday] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const [dateFormat, setDateFormat] = useState(() => detectDefaultFormat());
+
   const [alert, setAlert] = useState<AlertMessage>({
     type: "success",
     title: "",
@@ -46,6 +66,7 @@ export default function Page() {
       setOpenAlert(true);
       return;
     }
+
     const lines = input
       .split(/\r?\n/)
       .map(l => l.trim())
@@ -53,7 +74,7 @@ export default function Page() {
 
     const result = lines.map(dt => ({
       datetime: dt,
-      rate: getRateTOU(dt),
+      rate: getRateTOU(dt, dateFormat),
     }));
 
     setRows(result);
@@ -64,6 +85,7 @@ export default function Page() {
       title: "Success",
       message: "Result is ready",
     })
+
     setOpenAlert(true);
   };
 
@@ -111,9 +133,32 @@ export default function Page() {
 
           {/* Input */}
           <section className="rounded-2xl bg-white p-6 shadow-sm border border-purple-100 space-y-4">
-            <label className="block text-sm font-medium text-purple-700">
-              Paste Datetime
-            </label>
+            <div className="flex gap-3 justify-between">
+              {/* format dropdown */}
+              <label className="block text-sm font-medium text-purple-700">
+                Paste Datetime
+              </label>
+
+              <div className="flex align-center items-center gap-2">
+                <label className="text-sm font-medium text-purple-700 mb-1">
+                  Choose Date Format
+                </label>
+
+                <select
+                  value={dateFormat}
+                  onChange={e => setDateFormat(e.target.value)}
+                  className="rounded-xl border border-purple-200
+                            bg-white p-2 text-sm text-gray-500
+                            focus:ring-2 focus:ring-purple-400"
+                >
+                  {FORMAT_OPTIONS.map(f => (
+                    <option key={f.value} value={f.value}>
+                      {f.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
             <textarea
               className="w-full h-64 resize-none rounded-xl border border-purple-200 
@@ -150,10 +195,6 @@ export default function Page() {
               </button>
             </div>
 
-            {/* Visitor count */}
-            {/* <div className="flex items-center gap-1 text-xs text-purple-500">
-              👀 <span>{count}</span> visits
-            </div> */}
           </section>
 
           {/* Result */}
