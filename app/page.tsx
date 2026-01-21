@@ -172,9 +172,13 @@ export default function Page() {
 
             <div className="flex gap-3 justify-between">
               
-              <text className="text-xs font-semibold text-gray-300">
-                last update: {new Date().toLocaleString()}
-              </text>
+              <div className="">
+                {process.env.BUILD_TIME && (
+                  <text className="text-xs font-semibold text-gray-300">
+                    Build time: {new Date(process.env.BUILD_TIME!).toLocaleString()}
+                  </text>
+                )}
+              </div>
               
               <div className="flex justify-end">
                 <button
