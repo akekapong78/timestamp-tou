@@ -51,13 +51,26 @@ export function getRateTOU(dateStr: string, dateFormat: string): "P" | "OP" | "H
       formating = [
         "YYYY-MM-DD HH:mm",
         "YY-MM-DD HH:mm",
-        "YYYYY-M-D HH:mm",
+        "YYYY-M-D HH:mm",
         "YY-M-D HH:mm",
 
         "YYYY-MM-DD HH.mm",
         "YY-MM-DD HH.mm",
-        "YYYYY-M-D HH.mm",
+        "YYYY-M-D HH.mm",
         "YY-M-D HH.mm",
+      ];
+      break;
+    case "DD-MM-YYYY HH:mm":
+      formating = [
+        "DD-MM-YYYY HH:mm",
+        "DD-MM-YY HH:mm",
+        "D-M-YYYY HH:mm",
+        "D-M-YY HH:mm",
+
+        "DD-MM-YYYY HH.mm",
+        "DD-MM-YY HH.mm",
+        "D-M-YYYY HH.mm",
+        "D-M-YY HH.mm",
       ];
       break;
     default:

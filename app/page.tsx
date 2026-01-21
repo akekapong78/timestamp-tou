@@ -23,6 +23,7 @@ type AlertMessage = {
 const FORMAT_OPTIONS = [
   { label: "DD/MM/YYYY HH:mm", value: "DD/MM/YYYY HH:mm" },
   { label: "MM/DD/YYYY HH:mm", value: "MM/DD/YYYY HH:mm" },
+  { label: "DD-MM-YYYY HH:mm", value: "DD-MM-YYYY HH:mm" },
   { label: "YYYY-MM-DD HH:mm", value: "YYYY-MM-DD HH:mm" },
 ];
 
@@ -169,30 +170,37 @@ export default function Page() {
               onChange={e => setInput(e.target.value)}
             />
 
-            <div className="flex justify-end">
-              <button
-                onClick={handleReset}
-                className="rounded-xl bg-gray-700 px-6 py-2.5
-                          text-sm font-semibold text-white
-                          hover:bg-purple-400 cursor-pointer
-                          transition mr-2"
-                title="Reset"
-                aria-label="Reset Data"
-              >
-                Reset
-              </button>
+            <div className="flex gap-3 justify-between">
+              
+              <text className="text-xs font-semibold text-gray-300">
+                last update: {new Date().toLocaleString()}
+              </text>
+              
+              <div className="flex justify-end">
+                <button
+                  onClick={handleReset}
+                  className="rounded-xl bg-gray-700 px-6 py-2.5
+                            text-sm font-semibold text-white
+                            hover:bg-purple-400 cursor-pointer
+                            transition mr-2"
+                  title="Reset"
+                  aria-label="Reset Data"
+                >
+                  Reset
+                </button>
 
-              <button
-                onClick={handleSubmit}
-                className="rounded-xl bg-purple-700 px-6 py-2.5
-                          text-sm font-semibold text-white
-                          hover:bg-purple-800 cursor-pointer
-                          transition"
-                title="Process"
-                aria-label="Process"
-              >
-                Process
-              </button>
+                <button
+                  onClick={handleSubmit}
+                  className="rounded-xl bg-purple-700 px-6 py-2.5
+                            text-sm font-semibold text-white
+                            hover:bg-purple-800 cursor-pointer
+                            transition"
+                  title="Process"
+                  aria-label="Process"
+                >
+                  Process
+                </button>
+              </div>
             </div>
 
           </section>
