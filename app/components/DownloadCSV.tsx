@@ -1,15 +1,14 @@
-type Row = {
-  datetime: string;
-  rate: string;
-};
+import { Row } from "../interface/data";
 
 export default function DownloadCSV({ rows }: { rows: Row[] }) {
   const download = () => {
-    const csv =
-      "datetime,rate\n" +
-      rows.map(r => `"${r.datetime}",${r.rate}`).join("\n");
+    const headers = "Datetime,kW,Rate\n"; // เพิ่ม Header ให้ไฟล์
+    const content = rows.map(r => {
+      const val = r.value ?? ""; 
+      return `"${r.datetime}",${val},"${r.rate}"`;
+    }).join("\n");
 
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([headers + content], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
