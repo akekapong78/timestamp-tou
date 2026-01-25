@@ -10,7 +10,7 @@ import { AlertMessage } from "../interface/modal";
 import holidays from "@/app/data/holidays.json";
 import { CalendarDays, Eye } from "lucide-react";
 import { detectDefaultFormat } from "@/app/utils/helper";
-import DownloadCSV from "./DownloadCSV";
+import DownloadCSV from "./ExportDataButton";
 import ResultTable from "./ResultTable";
 
 export default function ShiftKWCalculator() {

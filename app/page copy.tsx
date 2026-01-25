@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { getRateTOU } from "./utils/tou";
 import ResultTable from "./components/ResultTable";
-import DownloadCSV from "./components/DownloadCSV";
+import DownloadCSV from "./components/ExportDataButton";
 import { CalendarDays, Eye } from "lucide-react";
 import HolidayModal from "./components/HolidayModal";
 import holidays from "@/app/data/holidays.json";

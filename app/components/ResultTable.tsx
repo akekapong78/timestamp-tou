@@ -34,14 +34,18 @@ export default function ResultTable({ rows }: { rows: Row[] }) {
               <td className="px-3 py-1.5 font-mono text-gray-600">
                 {r.datetime}
               </td>
-              { r.value ?
-                <td className="px-3 py-1.5 font-mono text-gray-600">
-                  {r.value}
-                </td>
-                : 
-                <td className="px-3 py-1.5 font-mono text-gray-600">
-                  -
-                </td>
+              { rows[0]?.value !== undefined &&
+                <>
+                  { r.value ?
+                    <td className="px-3 py-1.5 font-mono text-gray-600">
+                      {r.value}
+                    </td>
+                    :
+                    <td className="px-3 py-1.5 font-mono text-gray-600">
+                      -
+                    </td>
+                  }
+                </>
               }
               <td
                 className={`px-3 py-1.5 text-center font-semibold

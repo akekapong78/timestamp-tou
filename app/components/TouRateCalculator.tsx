@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { getRateTOU } from "@/app/utils/tou";
 import ResultTable from "./ResultTable";
-import DownloadCSV from "./DownloadCSV";
+import DownloadCSV from "./ExportDataButton";
 import { detectDefaultFormat } from "@/app/utils/helper";
 import { Row } from "../interface/data";
 import { AlertMessage } from "../interface/modal";
