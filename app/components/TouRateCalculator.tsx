@@ -32,7 +32,7 @@ export default function TouRateCalculator() {
     setInput("");
   }
 
-  const handleSubmit = () => {
+  const handleProcess = () => {
     if (!input) {
       setAlert({
         type: "warning",
@@ -43,14 +43,39 @@ export default function TouRateCalculator() {
       return;
     }
 
-    const lines = input
+    const parsed = input
       .split(/\r?\n/)
-      .map(l => l.trim())
+      .map(line => {
+        const parts = line
+          .replace(/\u00A0/g, " ")
+          .replace(/\t/g, " ")
+          .trim()
+          .split(/\s+/);
+
+        if (parts.length < 2) return null; // date and time or + value
+
+        parts[1] = parts[1].replace(".", ":"); // for : dayjs can parse "23/04/2025 08.00" but not "23/04/2025 08:00"
+        const datetime = parts[0] + " " + parts[1];
+        const value = parts[2] ? Number(parts[2]): null;
+
+        return { datetime, value };
+      })
       .filter(Boolean);
 
-    const result = lines.map(dt => ({
-      datetime: dt,
-      rate: getRateTOU(dt, dateFormat),
+    if (parsed.length === 0) {
+      setAlert({
+        type: "warning",
+        title: "Warning",
+        message: "No valid data found. Please check your input format.",
+      });
+      setOpenAlert(true);
+      return;
+    }
+
+    const result: Row[] = parsed.map((r, i) => ({
+      datetime: r!.datetime,
+      value: r!.value,
+      rate: getRateTOU(r!.datetime, dateFormat),
     }));
 
     setRows(result);
@@ -64,7 +89,6 @@ export default function TouRateCalculator() {
       setOpenAlert(true);
       return;
     }
-
 
     // open modal
     setAlert({
@@ -151,7 +175,17 @@ export default function TouRateCalculator() {
               className="w-full h-64 resize-none rounded-xl border border-purple-200 
                         p-3 font-mono text-sm text-gray-800
                         focus:outline-none focus:ring-2 focus:ring-purple-400"
-              placeholder={`ตัวอย่าง:\n2025-07-09 09:15\n2025-07-09 09:30\n...`}
+              placeholder={`ตัวอย่างเฉพาะ Datetime เช่น :
+2025-07-09 09:15
+2025-07-09 09:30
+2025-07-09 09:45
+...
+
+หรือตัวอย่าง Datetime พร้อมค่า kW เช่น :
+2025-07-09 10:00	0.006618
+2025-07-09 10:15	0.010062
+2025-07-09 10:30	0.008264
+...`}
               value={input}
               onChange={e => setInput(e.target.value)}
             />
@@ -169,7 +203,7 @@ export default function TouRateCalculator() {
                 Reset
               </button>
               <button
-                onClick={handleSubmit}
+                onClick={handleProcess}
                 className="rounded-xl bg-purple-700 px-6 py-2.5
                           text-sm font-semibold text-white
                           hover:bg-purple-800 cursor-pointer
@@ -182,6 +216,19 @@ export default function TouRateCalculator() {
             </div>
 
           </section>
+
+          {/* Summary */}
+          {rows.length > 0 && (
+            <section className="rounded-2xl bg-white p-6 shadow-sm border border-purple-100 space-y-4">
+
+              <h2 className="text-lg font-semibold text-purple-800">
+                Summary
+              </h2>
+
+              <Summary rows={rows} />
+
+            </section>
+          )}
 
           {/* Result Table */}
           {rows.length > 0 && (
