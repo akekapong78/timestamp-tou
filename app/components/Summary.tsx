@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   rows: Row[];
+  cutDay: number;
 };
 
 const rateColor = {
@@ -138,8 +139,7 @@ function buildAllMonthsSummary(rows: Row[]): MonthSummary | null {
   return buildMonthSummary(ALL_MONTHS_KEY, sortedData);
 }
 
-export default function Summary({ rows }: Props) {
-  const [cutDay, setCutDay] = useState(1);
+export default function Summary({ rows, cutDay }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<string>(ALL_MONTHS_KEY);
 
   const months = useMemo(() => groupByPeriod(rows, cutDay), [rows, cutDay]);
@@ -164,37 +164,20 @@ export default function Summary({ rows }: Props) {
   return (
     <div className="bg-white border border-purple-100 rounded-xl p-6 shadow-sm space-y-6">
 
-      {/* Month selector + cut day */}
+      {/* Month selector */}
       {months.length > 1 && (
-        <div className="flex items-center gap-3 flex-wrap">
-          <select
-            className="border rounded px-3 py-2 text-lg font-bold text-purple-800 ring-2 ring-purple-400"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-          >
-            <option value={ALL_MONTHS_KEY}>รวมทั้งหมด</option>
-            {months.map((m) => (
-              <option key={m.month} value={m.month}>
-                {m.label ?? dayjs(m.month).format("MMMM YYYY")}
-              </option>
-            ))}
-          </select>
-
-          <div className="flex items-center gap-2 text-sm">
-            <label className="font-medium text-purple-700 whitespace-nowrap">ตัดรอบวันที่</label>
-            <input
-              type="number"
-              min={1}
-              max={28}
-              value={cutDay}
-              onChange={(e) => {
-                const v = parseInt(e.target.value);
-                setCutDay(isNaN(v) || v < 1 ? 1 : Math.min(v, 28));
-              }}
-              className="w-16 rounded-xl border border-purple-200 p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-          </div>
-        </div>
+        <select
+          className="border rounded px-3 py-2 text-lg font-bold text-purple-800 ring-2 ring-purple-400"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+        >
+          <option value={ALL_MONTHS_KEY}>รวมทั้งหมด</option>
+          {months.map((m) => (
+            <option key={m.month} value={m.month}>
+              {m.label ?? dayjs(m.month).format("MMMM YYYY")}
+            </option>
+          ))}
+        </select>
       )}
 
       {/* Summary */}

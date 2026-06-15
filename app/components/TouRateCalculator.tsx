@@ -47,6 +47,7 @@ export default function TouRateCalculator() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [multiplier, setMultiplier] = useState<number>(1);
+  const [cutDay, setCutDay] = useState(1);
 
   const scaledRows = rows.map(r => ({
     ...r,
@@ -191,24 +192,54 @@ export default function TouRateCalculator() {
                 <div className="text-gray-500">copy เฉพาะคอลัมน์ Datetime จาก Excel ที่โหลดโปรไฟล์มา</div>
               </label>
 
-              <div className="flex align-center items-center gap-2">
-                <label className="text-sm font-medium text-purple-700 mb-1">
-                  Choose Date Format
-                </label>
+              <div className="flex align-center items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-purple-700 whitespace-nowrap">ตัดรอบวันที่</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={28}
+                    value={cutDay}
+                    disabled={rows.length > 0}
+                    onChange={e => {
+                      const v = parseInt(e.target.value);
+                      setCutDay(isNaN(v) || v < 1 ? 1 : Math.min(v, 28));
+                    }}
+                    className="w-16 rounded-xl border border-purple-200 p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  />
+                </div>
 
-                <select
-                  value={dateFormat}
-                  onChange={e => setDateFormat(e.target.value)}
-                  className="rounded-xl border border-purple-200
-                            bg-white p-2 text-sm text-gray-500
-                            focus:ring-2 focus:ring-purple-400"
-                >
-                  {FORMAT_OPTIONS.map(f => (
-                    <option key={f.value} value={f.value}>
-                      {f.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-purple-700 whitespace-nowrap">ตัวคูณ</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={multiplier}
+                    disabled={rows.length > 0}
+                    onChange={e => {
+                      const v = parseFloat(e.target.value);
+                      setMultiplier(isNaN(v) ? 1 : v);
+                    }}
+                    className="w-20 rounded-xl border border-purple-200 p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-purple-700 whitespace-nowrap">Date Format</label>
+                  <select
+                    value={dateFormat}
+                    onChange={e => setDateFormat(e.target.value)}
+                    className="rounded-xl border border-purple-200
+                              bg-white p-2 text-sm text-gray-500
+                              focus:ring-2 focus:ring-purple-400"
+                  >
+                    {FORMAT_OPTIONS.map(f => (
+                      <option key={f.value} value={f.value}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -250,26 +281,9 @@ export default function TouRateCalculator() {
           {rows.length > 0 && (
             <section className="rounded-2xl bg-white p-6 shadow-sm border border-purple-100 space-y-4">
 
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-purple-800">
-                  Summary
-                </h2>
-                <div className="flex items-center gap-2 text-sm">
-                  <label className="font-medium text-purple-700">ตัวคูณ (Multiplier)</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={multiplier}
-                    onChange={e => {
-                      const v = parseFloat(e.target.value);
-                      setMultiplier(isNaN(v) ? 1 : v);
-                    }}
-                    className="w-28 rounded-xl border border-purple-200 p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  />
-                </div>
-              </div>
+              <h2 className="text-lg font-semibold text-purple-800">Summary</h2>
 
-              <Summary rows={scaledRows} />
+              <Summary rows={scaledRows} cutDay={cutDay} />
 
             </section>
           )}
