@@ -16,7 +16,25 @@ import Summary from "./Summary";
 import LoadingOverlay from "./LoadingOverlay";
 
 export default function TouRateCalculator() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(
+`2025-07-07 08:00\t0.021000
+2025-07-07 08:15\t0.019500
+2025-07-07 08:30\t0.022000
+2025-07-07 08:45\t0.025000
+2025-07-07 09:00\t0.023500
+2025-07-07 09:15\t0.035000
+2025-07-07 09:30\t0.042000
+2025-07-07 09:45\t0.048000
+2025-07-07 10:00\t0.058000
+2025-07-07 10:15\t0.061000
+2025-07-07 10:30\t0.055000
+2025-07-07 10:45\t0.052000
+2025-07-12 09:00\t0.018000
+2025-07-12 09:15\t0.021000
+2025-07-12 09:30\t0.019500
+2025-07-12 09:45\t0.022000
+2025-07-12 10:00\t0.020000`
+  );
   const [rows, setRows] = useState<Row[]>([]);
   const [openHoliday, setOpenHoliday] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
@@ -28,7 +46,13 @@ export default function TouRateCalculator() {
     message: "",
   });
   const [isProcessing, setIsProcessing] = useState(false);
-  
+  const [multiplier, setMultiplier] = useState<number>(1);
+
+  const scaledRows = rows.map(r => ({
+    ...r,
+    value: r.value != null ? r.value * multiplier : r.value,
+  }));
+
   const handleReset = () => {
     setRows([]);
     setInput("");
@@ -192,17 +216,7 @@ export default function TouRateCalculator() {
               className="w-full h-64 resize-none rounded-xl border border-purple-200 
                         p-3 font-mono text-sm text-gray-800
                         focus:outline-none focus:ring-2 focus:ring-purple-400"
-              placeholder={`ตัวอย่างเฉพาะ Datetime เช่น :
-2025-07-09 09:15
-2025-07-09 09:30
-2025-07-09 09:45
-...
-
-หรือตัวอย่าง Datetime พร้อมค่า kW เช่น :
-2025-07-09 10:00	0.006618
-2025-07-09 10:15	0.010062
-2025-07-09 10:30	0.008264
-...`}
+              placeholder=""
               value={input}
               onChange={e => setInput(e.target.value)}
             />
@@ -236,11 +250,26 @@ export default function TouRateCalculator() {
           {rows.length > 0 && (
             <section className="rounded-2xl bg-white p-6 shadow-sm border border-purple-100 space-y-4">
 
-              <h2 className="text-lg font-semibold text-purple-800">
-                Summary
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-purple-800">
+                  Summary
+                </h2>
+                <div className="flex items-center gap-2 text-sm">
+                  <label className="font-medium text-purple-700">ตัวคูณ (Multiplier)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={multiplier}
+                    onChange={e => {
+                      const v = parseFloat(e.target.value);
+                      setMultiplier(isNaN(v) ? 1 : v);
+                    }}
+                    className="w-28 rounded-xl border border-purple-200 p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  />
+                </div>
+              </div>
 
-              <Summary rows={rows} />
+              <Summary rows={scaledRows} />
 
             </section>
           )}
@@ -252,10 +281,10 @@ export default function TouRateCalculator() {
                 <h2 className="text-lg font-semibold text-purple-800">
                   Result ({rows.length.toLocaleString()} records)
                 </h2>
-                <DownloadCSV rows={rows} />
+                <DownloadCSV rows={scaledRows} />
               </div>
 
-              <ResultTable rows={rows} />
+              <ResultTable rows={scaledRows} />
             </section>
           )}
         </div>

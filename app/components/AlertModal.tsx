@@ -42,8 +42,14 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   const config = typeConfig[type];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center gap-3 mb-4">
           <span className="text-2xl">{config.icon}</span>
           <h2 className={`text-lg font-semibold ${config.titleColor}`}>

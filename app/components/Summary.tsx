@@ -14,7 +14,7 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   rows: Row[];
@@ -80,21 +80,47 @@ function buildMonthSummary(month: string, data: Row[]): MonthSummary {
   };
 }
 
-function groupByMonth(rows: Row[]): MonthSummary[] {
+function groupByPeriod(rows: Row[], cutDay: number): MonthSummary[] {
   const map: Record<string, Row[]> = {};
 
   rows.forEach((r) => {
     if (r.value == null) return;
 
     const parsed = dayjs(r.datetime, ALL_PARSE_FORMATS, true);
-    const m = parsed.isValid() ? parsed.format("YYYY-MM") : r.datetime;
 
-    if (!map[m]) map[m] = [];
+    let periodKey: string;
+    if (!parsed.isValid()) {
+      periodKey = r.datetime;
+    } else if (cutDay <= 1) {
+      periodKey = parsed.format("YYYY-MM");
+    } else {
+      periodKey = parsed.date() >= cutDay
+        ? parsed.format("YYYY-MM")
+        : parsed.subtract(1, "month").format("YYYY-MM");
+    }
 
-    map[m].push(r);
+    if (!map[periodKey]) map[periodKey] = [];
+    map[periodKey].push(r);
   });
 
-  return Object.entries(map).map(([month, data]) => buildMonthSummary(month, data));
+  return Object.entries(map)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([periodKey, data]) => {
+      const summary = buildMonthSummary(periodKey, data);
+      if (cutDay <= 1) return summary;
+
+      // label = calendar month with most rows in this period
+      const monthCount: Record<string, number> = {};
+      data.forEach((r) => {
+        const p = dayjs(r.datetime, ALL_PARSE_FORMATS, true);
+        if (p.isValid()) {
+          const m = p.format("YYYY-MM");
+          monthCount[m] = (monthCount[m] || 0) + 1;
+        }
+      });
+      const dominant = Object.entries(monthCount).sort((a, b) => b[1] - a[1])[0]?.[0] ?? periodKey;
+      return { ...summary, label: dayjs(dominant + "-01").format("MMMM YYYY") };
+    });
 }
 
 function buildAllMonthsSummary(rows: Row[]): MonthSummary | null {
@@ -113,9 +139,15 @@ function buildAllMonthsSummary(rows: Row[]): MonthSummary | null {
 }
 
 export default function Summary({ rows }: Props) {
-  const months = useMemo(() => groupByMonth(rows), [rows]);
-
+  const [cutDay, setCutDay] = useState(1);
   const [selectedMonth, setSelectedMonth] = useState<string>(ALL_MONTHS_KEY);
+
+  const months = useMemo(() => groupByPeriod(rows, cutDay), [rows, cutDay]);
+
+  useEffect(() => {
+    setSelectedMonth(ALL_MONTHS_KEY);
+  }, [cutDay]);
+
   const current = useMemo(
     () =>
       selectedMonth === ALL_MONTHS_KEY
@@ -132,20 +164,37 @@ export default function Summary({ rows }: Props) {
   return (
     <div className="bg-white border border-purple-100 rounded-xl p-6 shadow-sm space-y-6">
 
-      {/* Month selector */}
+      {/* Month selector + cut day */}
       {months.length > 1 && (
-        <select
-          className="border rounded px-3 py-2 text-lg font-bold text-purple-800 ring-2 ring-purple-400"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-        >
-          <option value={ALL_MONTHS_KEY}>รวมทั้งหมด</option>
-          {months.map((m) => (
-            <option key={m.month} value={m.month}>
-              {dayjs(m.month).format("MMMM YYYY")}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-3 flex-wrap">
+          <select
+            className="border rounded px-3 py-2 text-lg font-bold text-purple-800 ring-2 ring-purple-400"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+            <option value={ALL_MONTHS_KEY}>รวมทั้งหมด</option>
+            {months.map((m) => (
+              <option key={m.month} value={m.month}>
+                {m.label ?? dayjs(m.month).format("MMMM YYYY")}
+              </option>
+            ))}
+          </select>
+
+          <div className="flex items-center gap-2 text-sm">
+            <label className="font-medium text-purple-700 whitespace-nowrap">ตัดรอบวันที่</label>
+            <input
+              type="number"
+              min={1}
+              max={28}
+              value={cutDay}
+              onChange={(e) => {
+                const v = parseInt(e.target.value);
+                setCutDay(isNaN(v) || v < 1 ? 1 : Math.min(v, 28));
+              }}
+              className="w-16 rounded-xl border border-purple-200 p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+          </div>
+        </div>
       )}
 
       {/* Summary */}

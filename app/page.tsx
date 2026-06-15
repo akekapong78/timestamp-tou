@@ -32,7 +32,7 @@ export default function Page() {
   
       <footer className="fixed bottom-4 right-6 pointer-events-none">
         {process.env.BUILD_TIME && (
-        <p className="text-xs font-semibold text-gray-300">
+        <p className="text-xs font-semibold text-gray-300" suppressHydrationWarning>
           Build time: {new Date(process.env.BUILD_TIME!).toLocaleString()}
         </p>
       )}

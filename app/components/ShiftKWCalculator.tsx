@@ -16,7 +16,21 @@ import Summary from "./Summary";
 import LoadingOverlay from "./LoadingOverlay";
 
 export default function ShiftKWCalculator() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(
+`23/04/2025 08:00\t0.006618
+23/04/2025 08:15\t0.010062
+23/04/2025 08:30\t0.008264
+23/04/2025 08:45\t0.025086
+23/04/2025 09:00\t0
+23/04/2025 09:15\t0
+23/04/2025 09:30\t0
+23/04/2025 09:45\t0
+23/04/2025 10:00\t0
+23/04/2025 10:15\t0.012919
+23/04/2025 10:30\t0.009841
+23/04/2025 10:45\t0.014253
+23/04/2025 11:00\t0.018762`
+  );
   const [rows, setRows] = useState<Row[]>([]);
   const [openHoliday, setOpenHoliday] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
@@ -28,6 +42,12 @@ export default function ShiftKWCalculator() {
     message: "",
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [multiplier, setMultiplier] = useState<number>(1);
+
+  const scaledRows = rows.map(r => ({
+    ...r,
+    value: r.value != null ? r.value * multiplier : r.value,
+  }));
 
   const handleReset = () => {
     setRows([]);
@@ -197,18 +217,7 @@ export default function ShiftKWCalculator() {
               className="w-full h-64 resize-none rounded-xl border border-purple-200 
                         p-3 font-mono text-sm text-gray-800
                         focus:outline-none focus:ring-2 focus:ring-purple-400"
-              placeholder={`ตัวอย่าง:
-23/04/2025 08:00	0.006618
-23/04/2025 08:15	0.010062
-23/04/2025 08:30	0.008264
-23/04/2025 08:45	0.025086
-23/04/2025 09:00	0
-23/04/2025 09:15	0
-23/04/2025 09:30	0
-23/04/2025 09:45	0
-23/04/2025 10:00	0
-23/04/2025 10:15	0.012919
-...`}
+              placeholder=""
               value={input}
               onChange={e => setInput(e.target.value)}
             />
@@ -243,11 +252,26 @@ export default function ShiftKWCalculator() {
           {rows.length > 0 && (
             <section className="rounded-2xl bg-white p-6 shadow-sm border border-purple-100 space-y-4">
 
-              <h2 className="text-lg font-semibold text-purple-800">
-                Summary
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-purple-800">
+                  Summary
+                </h2>
+                <div className="flex items-center gap-2 text-sm">
+                  <label className="font-medium text-purple-700">ตัวคูณ (Multiplier)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={multiplier}
+                    onChange={e => {
+                      const v = parseFloat(e.target.value);
+                      setMultiplier(isNaN(v) ? 1 : v);
+                    }}
+                    className="w-28 rounded-xl border border-purple-200 p-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  />
+                </div>
+              </div>
 
-              <Summary rows={rows} />
+              <Summary rows={scaledRows} />
 
             </section>
           )}
@@ -259,10 +283,10 @@ export default function ShiftKWCalculator() {
                 <h2 className="text-lg font-semibold text-purple-800">
                   Result ({rows.length.toLocaleString()} records)
                 </h2>
-                <DownloadCSV rows={rows} />
+                <DownloadCSV rows={scaledRows} />
               </div>
 
-              <ResultTable rows={rows} />
+              <ResultTable rows={scaledRows} />
             </section>
           )}
         </div>

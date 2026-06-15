@@ -22,6 +22,7 @@ export type ChartData = {
 
 export type MonthSummary = {
   month: string;
+  label?: string;
   maxKW: number;
   maxKWRate: "P" | "OP" | "H" | "KWH";
   maxDatetime: string;
